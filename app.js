@@ -65,14 +65,46 @@ const gameBoardFactory = (size) => {
       console.log(box);
       console.log(boxToMark);
       console.log(gridContainer);
-      const isMarked = box.dataset.marked !== '';
       checkWin();
     };
   };
- const resetGame = () => {
 
- }
- 
+  const startNewGame = () => {
+    const gridContainer = document.querySelector('.grid');
+    gridContainer.innerHTML = '';
+    const game = gameBoardFactory(3);
+    game.createBoard();
+  };
+
+  const startTimeout = () => {
+    time = setTimeout(startNewGame, 10000);
+  };
+
+  const createModal = () => {
+    const modalBack = document.createElement('div');
+    const modalContent = document.createElement('div');
+    const modalButton = document.createElement('button');
+    modalBack.classList.add('modal-back');
+    modalContent.classList.add('modal-content');
+    modalButton.classList.add('modal-button');
+    document.body.append(modalBack);
+    modalBack.append(modalContent);
+    modalContent.append(modalButton);
+    modalButton.onclick = () => {
+      clearTimeout(time);
+      const modalBack = document.querySelector('.modal-back');
+      modalBack.remove();
+      startNewGame();
+    };
+    window.onclick = (e) => {
+      if (e.target === modalBack) {
+        clearTimeout(time);
+        modalBack.remove();
+        startNewGame();
+      }
+    };
+  };
+
   const checkWin = () => {
     //grab grid
     const gridContainer = document.querySelector('.grid');
@@ -87,15 +119,16 @@ const gameBoardFactory = (size) => {
     //does the row have empty string in marked attribute
 
     let size = 3;
-
     let from = 0;
     let to = 3;
     let winningLine = false;
+
     for (let i = 0; i <= size - 1; i++) {
       winningLine = !markedArray.slice(from, to).includes('');
       if (winningLine) {
         console.log('winner!');
-        resetGame()
+        startTimeout();
+        createModal();
         return;
       }
       console.log(winningLine);
