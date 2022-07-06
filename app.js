@@ -1,5 +1,3 @@
-let baseSize = 0;
-
 //player factory
 const playerFactory = (firstName, lastName, birthDate) => {
   const getPlayerData = () => `${firstName} ${lastName}`;
@@ -112,7 +110,7 @@ const gameBoardFactory = () => {
     console.log({ rowArray });
     //does the row have empty string in marked attribute\
     const root = document.querySelector(':root');
-    let size = Number(root.style.getPropertyValue('--grid-size'));
+    const size = Number(root.style.getPropertyValue('--grid-size'));
     let from = 0;
     let to = size;
     let winningRow = false;
@@ -156,6 +154,23 @@ const gameBoardFactory = () => {
       to += size;
       console.log(from, to);
     }
+
+    //checks diagonals for winning line
+    let diagonal1 = [];
+    let diagonal2 = [];
+    for (let i = 0; i < size; i++) {
+      diagonal1.push(newArr[i * (size + 1)].dataset.marked);
+      diagonal2.push(newArr[(i + 1) * (size - 1)].dataset.marked);
+    }
+    winningDiag1 = diagonal1.every((mark) => mark === 'true');
+    winningDiag2 = diagonal2.every((mark) => mark === 'true');
+    console.log(winningDiag1, winningDiag2);
+    if (winningDiag1 || winningDiag2) {
+      console.log('winner!');
+      startTimeout();
+      createModal();
+      return;
+    }
   };
 
   const createBoard = () => {
@@ -170,7 +185,7 @@ const gameBoardFactory = () => {
   return {
     createBoard,
     checkWin,
-    calcSize,
+    
   };
 };
 //create instance of game
