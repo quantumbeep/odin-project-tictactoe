@@ -1,3 +1,5 @@
+let baseSize = 0;
+
 //player factory
 const playerFactory = (firstName, lastName, birthDate) => {
   const getPlayerData = () => `${firstName} ${lastName}`;
@@ -14,40 +16,34 @@ const playerFactory = (firstName, lastName, birthDate) => {
     }
     return age;
   };
-
+  const winCount = () => {};
   const setTurn = () => {
     return (isActiveTurn = !isActiveTurn);
   };
-  const placeMarker = (box) => {
-    //select grid box dom
-
-    const x = document.querySelectorAll('.box');
-    x.onclick = (e) => {
-      console.log(e.target);
-    };
-    //if box is empty then change the color of the box background
-    //add count to turns
-    //else display message or indicator that space is taken already
+  const markBox = (e) => {
+    const boxToMark = e.target;
+    boxToMark.style.background = 'red';
+    box.setAttribute('data-marked', true);
+    checkWin();
   };
   return {
     firstName,
     lastName,
-    birthDate,
-    wins,
-    totalGamesPlayed,
-    isActiveTurn,
+    // wins,
+    // totalGamesPlayed,
+    // isActiveTurn,
     getPlayerData,
     getAge,
   };
 };
 
 //gameboard factory
-const gameBoardFactory = (size) => {
+const gameBoardFactory = () => {
   const calcSize = () => {
+    const size = sizeInput.value;
     boxCount = size ** 2;
     return boxCount;
   };
-
   const createBox = (i) => {
     const gridContainer = document.querySelector('.grid');
     const box = document.createElement('div');
@@ -69,15 +65,13 @@ const gameBoardFactory = (size) => {
     };
   };
 
-  const startNewGame = () => {
+  const resetGame = () => {
     const gridContainer = document.querySelector('.grid');
     gridContainer.innerHTML = '';
-    const game = gameBoardFactory(3);
-    game.createBoard();
   };
 
   const startTimeout = () => {
-    time = setTimeout(startNewGame, 10000);
+    time = setTimeout(resetGame, 10000);
   };
 
   const createModal = () => {
@@ -94,13 +88,13 @@ const gameBoardFactory = (size) => {
       clearTimeout(time);
       const modalBack = document.querySelector('.modal-back');
       modalBack.remove();
-      startNewGame();
+      resetGame();
     };
     window.onclick = (e) => {
       if (e.target === modalBack) {
         clearTimeout(time);
         modalBack.remove();
-        startNewGame();
+        resetGame();
       }
     };
   };
@@ -109,38 +103,65 @@ const gameBoardFactory = (size) => {
     //grab grid
     const gridContainer = document.querySelector('.grid');
 
-    //access all boxes via childnodes and assign to const[]
+    //access all boxes via childnodes and assign to an array
     const boxArray = gridContainer.childNodes;
     const newArr = Array.from(boxArray);
-    console.log(typeof newArr);
-    console.log(newArr);
+
     //map over array to extract 'marked' attribute into new array
-    const markedArray = newArr.map((box) => box.dataset.marked);
-    //does the row have empty string in marked attribute
-
-    let size = 3;
+    const rowArray = newArr.map((box) => box.dataset.marked);
+    console.log({ rowArray });
+    //does the row have empty string in marked attribute\
+    const root = document.querySelector(':root');
+    let size = Number(root.style.getPropertyValue('--grid-size'));
     let from = 0;
-    let to = 3;
-    let winningLine = false;
+    let to = size;
+    let winningRow = false;
+    let winningCol = false;
+    const colArray = [];
+    for (let i = 0; i < size; i++) {
+      for (let j = i; j < newArr.length; j += size) {
+        colArray.push(newArr[j].dataset.marked);
+        console.log(colArray);
+      }
+    }
 
-    for (let i = 0; i <= size - 1; i++) {
-      winningLine = !markedArray.slice(from, to).includes('');
-      if (winningLine) {
+    //checks each row for winning line
+    for (let i = 0; i < size; i++) {
+      winningRow = rowArray.slice(from, to).every((mark) => mark === 'true');
+      console.log(winningRow);
+      if (winningRow) {
         console.log('winner!');
         startTimeout();
         createModal();
         return;
       }
-      console.log(winningLine);
       from += size;
       to += size;
       console.log(from, to);
     }
-    console.log(markedArray);
-    console.log(winningLine);
+
+    //checks each col for winning line
+    from = 0;
+    to = size;
+    for (let i = 0; i < size; i++) {
+      winningCol = colArray.slice(from, to).every((mark) => mark === 'true');
+      console.log(winningCol);
+      if (winningCol) {
+        console.log('winner!');
+        startTimeout();
+        createModal();
+        return;
+      }
+      from += size;
+      to += size;
+      console.log(from, to);
+    }
   };
 
   const createBoard = () => {
+    resetGame();
+    const root = document.querySelector(':root');
+    root.style.setProperty('--grid-size', sizeInput.value);
     for (let i = 1; i <= calcSize(); i++) {
       createBox(i);
     }
@@ -149,11 +170,17 @@ const gameBoardFactory = (size) => {
   return {
     createBoard,
     checkWin,
+    calcSize,
   };
 };
-
-const game = gameBoardFactory(3);
-console.trace(game);
-
-game.createBoard();
-game.checkWin();
+//create instance of game
+const game = gameBoardFactory();
+const startButton = document.querySelector('.start-button');
+const sizeInput = document.querySelector('#size');
+sizeInput.oninput = (e) => {
+  console.log(e.target.value);
+  sizeInput.value = e.target.value;
+};
+startButton.onclick = () => {
+  game.createBoard();
+};

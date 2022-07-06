@@ -1,5 +1,5 @@
 :root {
-  --grid-size:
+  --grid-size: 3;
 }
 
 html {
@@ -25,7 +25,8 @@ header {
 .grid {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--grid-size), 1fr);
+  grid-template-rows: repeat(var(--grid-size), 1fr);
   grid-auto-rows: auto;
   list-style: none;
   gap: 0px;
@@ -39,11 +40,9 @@ header {
   background-color: rgb(195, 195, 195);
 }
 
-.box:hover{
-background-color: rgb(31, 124, 105);
+.box:hover {
+  background-color: rgb(31, 124, 105);
 }
-
-
 
 input,
 button {
@@ -60,8 +59,8 @@ button {
   width: 100%; /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
 /* Modal Content/Box */
@@ -74,7 +73,7 @@ button {
 }
 
 .modal-button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   color: white;
   padding: 15px 32px;
