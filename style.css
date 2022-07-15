@@ -1,5 +1,7 @@
 :root {
   --grid-size: 3;
+  --player1-color: #f00;
+  --player2-color: rgb(0, 0, 255);
 }
 
 html {
@@ -91,4 +93,11 @@ button {
 
 .modal-button:hover {
 background-color: #69f36e;
+}
+
+.player-1-color {
+  background-color: var(--player1-color);
+}
+.player-2-color {
+  background-color: var(--player2-color);
 }
