@@ -1,6 +1,6 @@
 :root {
   --grid-size: 3;
-  --player1-color: #f00;
+  --player1-color: rgb(255, 12, 12);
   --player2-color: rgb(0, 0, 255);
 }
 

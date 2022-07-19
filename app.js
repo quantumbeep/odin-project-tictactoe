@@ -6,6 +6,7 @@ const gridContainer = document.querySelector('.grid');
 const startButton = document.querySelector('.start-button');
 const firstNameInput = document.querySelector('#first-name');
 const lastNameInput = document.querySelector('#last-name');
+const form = document.querySelector('form');
 
 //player factory
 const playerFactory = () => {
@@ -13,6 +14,7 @@ const playerFactory = () => {
   let colorChoice = '';
   const firstName = 'First Name';
   const lastName = 'Last Name';
+  let isTurn = false;
   const winCount = () => {
     const wins = 0;
     wins++;
@@ -31,13 +33,11 @@ const playerFactory = () => {
   };
 
   const getColor = () => {
-    colorChoice = root.style.getPropertyValue('--player1-color');
-    console.log(colorChoice);
     return colorChoice;
   };
 
-  const setTurn = (bool) => {
-    isTurn = bool;
+  const setTurn = (value) => {
+    isTurn = value;
   };
 
   const getTurn = () => {
@@ -45,9 +45,18 @@ const playerFactory = () => {
   };
 
   const markBox = (e) => {
+    let color = '';
     const boxToMark = e.target;
     console.log(boxToMark);
-    const color = player.getColor();
+    console.log(color);
+    console.log(playerList[0]);
+    if (player.getPlayer(1).getTurn()) {
+      color = '#a10951'; //player.getPlayer(1).getColor();
+      player.getPlayer(1).setTurn(false);
+    } else {
+      color = '#06881e'; //player.getPlayer(2).getColor();
+      player.getPlayer(2).setTurn(true);
+    }
     console.log(color);
     boxToMark.setAttribute('data-marked', color);
     boxToMark.style.background = color;
@@ -62,11 +71,14 @@ const playerFactory = () => {
         ...player,
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
+        colorChoice: getColor(),
       };
     } else {
       return alert('invalid name or empty field!');
     }
     playerList.push(player);
+    console.log(...playerList);
+    form.reset();
     console.log(...playerList);
   };
 
@@ -83,9 +95,9 @@ const playerFactory = () => {
     getColor,
     winCount,
     markBox,
+    getPlayer,
     firstName,
     lastName,
-    colorChoice,
   };
 };
 
@@ -156,14 +168,18 @@ const gameBoardFactory = () => {
         console.log(colArray);
       }
     }
-
+    console.log(player.getPlayer(1).getColor());
+    console.log(player.getPlayer(0).getColor());
     //checks rows for winning line
     for (let i = 0; i < size; i++) {
-      player.getColor();
       winningRow = rowArray
         .slice(from, to)
-        .every((mark) => mark === player.getColor());
-      console.log(winningRow);
+        .every(
+          (mark) =>
+            mark === player.getPlayer(1).getColor() ||
+            mark === player.getPlayer(0).getColor()
+        );
+      console.log({ winningRow });
       if (winningRow) {
         console.log('winner!');
         startTimeout();
@@ -181,8 +197,12 @@ const gameBoardFactory = () => {
     for (let i = 0; i < size; i++) {
       winningCol = colArray
         .slice(from, to)
-        .every((mark) => mark === player.getColor());
-      console.log(winningCol);
+        .every(
+          (mark) =>
+            mark === player.getPlayer(1).getColor() ||
+            mark === player.getPlayer(0).getColor()
+        );
+      console.log({ winningCol });
       if (winningCol) {
         console.log('winner!');
         startTimeout();
@@ -201,9 +221,17 @@ const gameBoardFactory = () => {
       diagonal1.push(newArr[i * (size + 1)].dataset.marked);
       diagonal2.push(newArr[(i + 1) * (size - 1)].dataset.marked);
     }
-    let winningDiag1 = diagonal1.every((mark) => mark === player.getColor());
-    let winningDiag2 = diagonal2.every((mark) => mark === player.getColor());
-    console.log(winningDiag1, winningDiag2);
+    let winningDiag1 = diagonal1.every(
+      (mark) =>
+        mark === player.getPlayer(1).getColor() ||
+        mark === player.getPlayer(0).getColor()
+    );
+    let winningDiag2 = diagonal2.every(
+      (mark) =>
+        mark === player.getPlayer(1).getColor() ||
+        mark === player.getPlayer(0).getColor()
+    );
+    console.log({ winningDiag1, winningDiag2 });
     if (winningDiag1 || winningDiag2) {
       console.log('winner!');
       startTimeout();
@@ -276,13 +304,13 @@ if (checkBoard.every((item) => item === '')) {
   const randomNum = Math.floor(Math.random() * 100);
   console.log({ randomNum });
   if (randomNum % 2 === 0) {
-    playerList[0].setTurn(true);
+    player.getPlayer(1).setTurn(true);
   } else {
-    playerList[1].setTurn(true);
+    player.getPlayer(2).setTurn(true);
   }
 }
-
-if (playerList[0].getTurn() === true) {
+console.log(playerList[0]);
+if (player.getPlayer(1).getTurn() === true) {
   colorChoice = root.style.getPropertyValue('--player1-color');
 } else {
   colorChoice = root.style.getPropertyValue('--player2-color');
