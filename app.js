@@ -29,6 +29,7 @@ const playerFactory = () => {
     colorChoice = e.target.value;
     console.log(colorChoice);
     console.log(typeof colorChoice);
+
     root.style.setProperty('--player1-color', colorChoice);
   };
 
@@ -48,13 +49,12 @@ const playerFactory = () => {
     let color = '';
     const boxToMark = e.target;
     console.log(boxToMark);
-    console.log(color);
     console.log(playerList[0]);
     if (player.getPlayer(1).getTurn()) {
-      color = '#a10951'; //player.getPlayer(1).getColor();
+      color = player.getPlayer(1).playerColor;
       player.getPlayer(1).setTurn(false);
     } else {
-      color = '#06881e'; //player.getPlayer(2).getColor();
+      color = player.getPlayer(2).playerColor;
       player.getPlayer(2).setTurn(true);
     }
     console.log(color);
@@ -71,7 +71,7 @@ const playerFactory = () => {
         ...player,
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
-        colorChoice: getColor(),
+        playerColor: getColor(),
       };
     } else {
       return alert('invalid name or empty field!');
@@ -79,7 +79,6 @@ const playerFactory = () => {
     playerList.push(player);
     console.log(...playerList);
     form.reset();
-    console.log(...playerList);
   };
 
   const getName = () => {
@@ -145,8 +144,6 @@ const gameBoardFactory = () => {
   };
 
   const checkWin = () => {
-    //grab grid
-
     //access all boxes via childnodes and assign to an array
     const boxArray = gridContainer.childNodes;
     const newArr = Array.from(boxArray);
@@ -154,7 +151,7 @@ const gameBoardFactory = () => {
     //map over array to extract 'marked' attribute into new array
     const rowArray = newArr.map((box) => box.dataset.marked);
     console.log({ rowArray });
-    //does the row have empty string in marked attribute\
+    //does the row have empty string in marked attribute
     const root = document.querySelector(':root');
     const size = Number(root.style.getPropertyValue('--grid-size'));
     let from = 0;
@@ -165,53 +162,55 @@ const gameBoardFactory = () => {
     for (let i = 0; i < size; i++) {
       for (let j = i; j < newArr.length; j += size) {
         colArray.push(newArr[j].dataset.marked);
-        console.log(colArray);
       }
     }
-    console.log(player.getPlayer(1).getColor());
-    console.log(player.getPlayer(0).getColor());
+    console.log(player.getPlayer(1).playerColor);
+    console.log(player.getPlayer(2).playerColor);
+
+    const isAllPlayer1Color = (mark) => {
+      return mark === player.getPlayer(1).playerColor;
+    };
+
+    const isAllPlayer2Color = (mark) => {
+      return mark === player.getPlayer(2).playerColor;
+    };
+
     //checks rows for winning line
     for (let i = 0; i < size; i++) {
-      winningRow = rowArray
-        .slice(from, to)
-        .every(
-          (mark) =>
-            mark === player.getPlayer(1).getColor() ||
-            mark === player.getPlayer(0).getColor()
-        );
-      console.log({ winningRow });
-      if (winningRow) {
+      console.log(from, to);
+      console.log(rowArray.slice(from, to));
+      if (
+        rowArray.slice(from, to).every(isAllPlayer1Color) ||
+        rowArray.slice(from, to).every(isAllPlayer2Color)
+      ) {
         console.log('winner!');
         startTimeout();
         createModal();
         return;
       }
+
       from += size;
       to += size;
-      console.log(from, to);
     }
 
     //checks columns for winning line
     from = 0;
     to = size;
     for (let i = 0; i < size; i++) {
-      winningCol = colArray
-        .slice(from, to)
-        .every(
-          (mark) =>
-            mark === player.getPlayer(1).getColor() ||
-            mark === player.getPlayer(0).getColor()
-        );
-      console.log({ winningCol });
-      if (winningCol) {
+      console.log(from, to);
+      console.log(colArray.slice(from, to));
+      if (
+        colArray.slice(from, to).every(isAllPlayer1Color) ||
+        colArray.slice(from, to).every(isAllPlayer2Color)
+      ) {
         console.log('winner!');
         startTimeout();
         createModal();
         return;
       }
+
       from += size;
       to += size;
-      console.log(from, to);
     }
 
     //checks diagonals for winning line
@@ -221,18 +220,19 @@ const gameBoardFactory = () => {
       diagonal1.push(newArr[i * (size + 1)].dataset.marked);
       diagonal2.push(newArr[(i + 1) * (size - 1)].dataset.marked);
     }
-    let winningDiag1 = diagonal1.every(
-      (mark) =>
-        mark === player.getPlayer(1).getColor() ||
-        mark === player.getPlayer(0).getColor()
-    );
-    let winningDiag2 = diagonal2.every(
-      (mark) =>
-        mark === player.getPlayer(1).getColor() ||
-        mark === player.getPlayer(0).getColor()
-    );
-    console.log({ winningDiag1, winningDiag2 });
-    if (winningDiag1 || winningDiag2) {
+    if (
+      diagonal1.every(isAllPlayer1Color) ||
+      diagonal1.every(isAllPlayer2Color)
+    ) {
+      console.log('winner!');
+      startTimeout();
+      createModal();
+      return;
+    }
+    if (
+      diagonal2.every(isAllPlayer1Color) ||
+      diagonal2.every(isAllPlayer2Color)
+    ) {
       console.log('winner!');
       startTimeout();
       createModal();
@@ -294,26 +294,28 @@ startButton.onclick = () => {
 
 //determine which player marks first
 //if all boxes data-marked attribute is empty string
+if (gridContainer.firstChild) {
+  const boxArray = gridContainer.childNodes;
+  const newArr = Array.from(boxArray);
 
-const boxArray = gridContainer.childNodes;
-const newArr = Array.from(boxArray);
+  const checkNoMoves = newArr.map((box) => box.dataset.marked);
 
-const checkBoard = newArr.map((box) => box.dataset.marked);
-
-if (checkBoard.every((item) => item === '')) {
-  const randomNum = Math.floor(Math.random() * 100);
-  console.log({ randomNum });
-  if (randomNum % 2 === 0) {
-    player.getPlayer(1).setTurn(true);
-  } else {
-    player.getPlayer(2).setTurn(true);
+  if (checkNoMoves.every((item) => item === '')) {
+    const randomNum = Math.floor(Math.random() * 100);
+    console.log({ randomNum });
+    if (randomNum % 2 === 0) {
+      player.getPlayer(1).setTurn(true);
+    } else {
+      player.getPlayer(2).setTurn(true);
+    }
+  } else if (checkNoMoves.includes((item) => item === '') === false) {
   }
+  console.log(playerList[0]);
+  if (player.getPlayer(1).getTurn()) {
+    colorChoice = root.style.getPropertyValue('--player1-color');
+  } else {
+    colorChoice = root.style.getPropertyValue('--player2-color');
+  }
+  //then use random number to decide which player marks first
+  //else if data-marked hex value
 }
-console.log(playerList[0]);
-if (player.getPlayer(1).getTurn() === true) {
-  colorChoice = root.style.getPropertyValue('--player1-color');
-} else {
-  colorChoice = root.style.getPropertyValue('--player2-color');
-}
-//then use random number to decide which player marks first
-//else if data-marked hex value
