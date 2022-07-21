@@ -7,6 +7,8 @@ const startButton = document.querySelector('.start-button');
 const firstNameInput = document.querySelector('#first-name');
 const lastNameInput = document.querySelector('#last-name');
 const form = document.querySelector('form');
+const sizeInput = document.querySelector('#size');
+const sizeDisplay = document.querySelector('.size-display');
 
 //player factory
 const playerFactory = () => {
@@ -26,7 +28,8 @@ const playerFactory = () => {
   };
 
   const setColor = (e) => {
-    colorChoice = e.target.value;
+    colorChoice = colorPicker.value;
+    // colorChoice = e.target.value;
     console.log(colorChoice);
     console.log(typeof colorChoice);
 
@@ -102,8 +105,6 @@ const playerFactory = () => {
 
 //gameboard factory
 const gameBoardFactory = () => {
-  const sizeInput = document.querySelector('#size');
-
   const calcSize = () => {
     const size = sizeInput.value;
     const boxCount = size ** 2;
@@ -118,7 +119,7 @@ const gameBoardFactory = () => {
     time = setTimeout(resetGame, 10000);
   };
 
-  const createModal = () => {
+  const createModal = (winner) => {
     const modalBack = document.createElement('div');
     const modalContent = document.createElement('div');
     const modalButton = document.createElement('button');
@@ -128,6 +129,8 @@ const gameBoardFactory = () => {
     document.body.append(modalBack);
     modalBack.append(modalContent);
     modalContent.append(modalButton);
+    modalContent.style.background = winner;
+    modalContent.textContent = 'Winner!';
     modalButton.onclick = () => {
       clearTimeout(time);
       const modalBack = document.querySelector('.modal-back');
@@ -156,8 +159,7 @@ const gameBoardFactory = () => {
     const size = Number(root.style.getPropertyValue('--grid-size'));
     let from = 0;
     let to = size;
-    let winningRow = false;
-    let winningCol = false;
+
     const colArray = [];
     for (let i = 0; i < size; i++) {
       for (let j = i; j < newArr.length; j += size) {
@@ -184,8 +186,11 @@ const gameBoardFactory = () => {
         rowArray.slice(from, to).every(isAllPlayer2Color)
       ) {
         console.log('winner!');
+        console.log(rowArray.slice(from, to));
+        console.log(rowArray.slice(from, to)[0]);
+        const winner = rowArray.slice(from, to)[0];
         startTimeout();
-        createModal();
+        createModal(winner);
         return;
       }
 
@@ -204,11 +209,13 @@ const gameBoardFactory = () => {
         colArray.slice(from, to).every(isAllPlayer2Color)
       ) {
         console.log('winner!');
+        console.log(colArray.slice(from, to));
+        console.log(colArray.slice(from, to)[0]);
+        const winner = colArray.slice(from, to)[0];
         startTimeout();
-        createModal();
+        createModal(winner);
         return;
       }
-
       from += size;
       to += size;
     }
@@ -224,18 +231,24 @@ const gameBoardFactory = () => {
       diagonal1.every(isAllPlayer1Color) ||
       diagonal1.every(isAllPlayer2Color)
     ) {
+      console.log(diagonal1);
+      console.log(diagonal1[0]);
+      const winner = diagonal1[0];
       console.log('winner!');
       startTimeout();
-      createModal();
+      createModal(winner);
       return;
     }
     if (
       diagonal2.every(isAllPlayer1Color) ||
       diagonal2.every(isAllPlayer2Color)
     ) {
+      console.log(diagonal2);
+      console.log(diagonal2[0]);
       console.log('winner!');
+      const winner = diagonal2[0];
       startTimeout();
-      createModal();
+      createModal(winner);
       return;
     }
   };
@@ -256,7 +269,6 @@ const gameBoardFactory = () => {
 
   const createBoard = () => {
     resetGame();
-    const sizeInput = document.querySelector('#size');
     root.style.setProperty('--grid-size', sizeInput.value);
     for (let i = 1; i <= calcSize(); i++) {
       boxFactory(i);
@@ -279,18 +291,19 @@ saveNameButton.addEventListener('click', player.setColor);
 
 //Event listeners
 //Color
-colorPicker.addEventListener('click', player.setColor);
+colorPicker.addEventListener('input', player.setColor);
 
 //create instance of game
 const game = gameBoardFactory();
-const sizeInput = document.querySelector('#size');
-sizeInput.oninput = (e) => {
+sizeInput.addEventListener('input', function (e) {
   console.log(e.target.value);
   sizeInput.value = e.target.value;
-};
-startButton.onclick = () => {
+  console.log(sizeInput.value);
+  sizeDisplay.textContent = `${sizeInput.value} x ${sizeInput.value}`;
+});
+startButton.addEventListener('click', function () {
   game.createBoard();
-};
+});
 
 //determine which player marks first
 //if all boxes data-marked attribute is empty string

@@ -25,13 +25,23 @@
           name="last-name"
           placeholder="Enter your Last name"
         />
-        <span class="player-1-color">Player 1</span>
-        <input type="color" id="color-picker" name="color-picker" />
+        <label for="color-picker" class="player-1-color">Choose a color</label>
+        <input
+          type="color"
+          id="color-picker"
+          name="color-picker"
+          value="#808080"
+        />
+
         <button class="save-name-button">Save</button>
       </form>
-      <div class="colors">
+      <div class="players">
+        <p class="player-item-1">Player 1</p>
+        <p class="player-item-2">Player 2</p>
       </div>
+      <label for="size">How big do you want the board to be?</label>
       <input type="number" id="size" name="size" placeholder="How many rows?" />
+      <span class="size-display"></span>
       <button class="start-button">Start Game</button>
     </header>
     <div class="container">
