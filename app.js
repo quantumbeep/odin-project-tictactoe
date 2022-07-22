@@ -59,10 +59,12 @@ const playerFactory = () => {
       player.getPlayer(2).setTurn(true);
     }
     console.log(color);
-    boxToMark.setAttribute('data-marked', color);
-    boxToMark.style.background = color;
-    console.log(boxToMark);
-    game.checkWin();
+    if (boxToMark.dataset.marked === '') {
+      boxToMark.setAttribute('data-marked', color);
+      boxToMark.style.background = color;
+      console.log(boxToMark);
+      game.checkWin();
+    }
   };
 
   const handleSave = (e) => {
