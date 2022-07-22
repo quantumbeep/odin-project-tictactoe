@@ -9,6 +9,7 @@ const lastNameInput = document.querySelector('#last-name');
 const form = document.querySelector('form');
 const sizeInput = document.querySelector('#size');
 const sizeDisplay = document.querySelector('.size-display');
+const playerDisplay = document.querySelector('.players');
 
 //player factory
 const playerFactory = () => {
@@ -29,10 +30,7 @@ const playerFactory = () => {
 
   const setColor = (e) => {
     colorChoice = colorPicker.value;
-    // colorChoice = e.target.value;
     console.log(colorChoice);
-    console.log(typeof colorChoice);
-
     root.style.setProperty('--player1-color', colorChoice);
   };
 
@@ -67,8 +65,11 @@ const playerFactory = () => {
     game.checkWin();
   };
 
-  const setName = (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
+    //set the color
+    setColor();
+    //save name and color to obj
     if (firstNameInput.value !== '' && lastNameInput.value !== '') {
       player = {
         ...player,
@@ -79,8 +80,14 @@ const playerFactory = () => {
     } else {
       return alert('invalid name or empty field!');
     }
+    //push obj to array
     playerList.push(player);
     console.log(...playerList);
+    console.log(playerList);
+    console.log({ playerList });
+    //render player
+    displayPlayers();
+    //clear fields
     form.reset();
   };
 
@@ -88,10 +95,22 @@ const playerFactory = () => {
     return firstName;
   };
 
+  const displayPlayers = () => {
+    playerDisplay.innerHTML = '';
+    for (let i = 1; i <= playerList.length; i++) {
+      const playerItem = document.createElement('p');
+      playerItem.classList.add('player-' + i, 'player');
+      playerItem.style.background = player.getPlayer(i).playerColor;
+      playerItem.textContent = player.getPlayer(i).firstName;
+      playerDisplay.append(playerItem);
+      console.trace();
+    }
+  };
+
   return {
     setTurn,
     getTurn,
-    setName,
+    handleSave,
     getName,
     setColor,
     getColor,
@@ -100,6 +119,8 @@ const playerFactory = () => {
     getPlayer,
     firstName,
     lastName,
+    playerList,
+    displayPlayers,
   };
 };
 
@@ -282,16 +303,14 @@ const gameBoardFactory = () => {
 };
 
 //-----------------------------------------
-
 let player = playerFactory();
 
-//Player name
-saveNameButton.addEventListener('click', player.setName);
-saveNameButton.addEventListener('click', player.setColor);
-
-//Event listeners
 //Color
-colorPicker.addEventListener('input', player.setColor);
+// colorPicker.addEventListener('input', player.setColor);
+//Player name
+saveNameButton.addEventListener('click', player.handleSave);
+console.log(player);
+console.log(player.playerList);
 
 //create instance of game
 const game = gameBoardFactory();
@@ -311,9 +330,9 @@ if (gridContainer.firstChild) {
   const boxArray = gridContainer.childNodes;
   const newArr = Array.from(boxArray);
 
-  const checkNoMoves = newArr.map((box) => box.dataset.marked);
+  const checkGrid = newArr.map((box) => box.dataset.marked);
 
-  if (checkNoMoves.every((item) => item === '')) {
+  if (checkGrid.every((item) => item === '')) {
     const randomNum = Math.floor(Math.random() * 100);
     console.log({ randomNum });
     if (randomNum % 2 === 0) {
@@ -321,14 +340,6 @@ if (gridContainer.firstChild) {
     } else {
       player.getPlayer(2).setTurn(true);
     }
-  } else if (checkNoMoves.includes((item) => item === '') === false) {
+  } else if (!checkGrid.includes((item) => item === '')) {
   }
-  console.log(playerList[0]);
-  if (player.getPlayer(1).getTurn()) {
-    colorChoice = root.style.getPropertyValue('--player1-color');
-  } else {
-    colorChoice = root.style.getPropertyValue('--player2-color');
-  }
-  //then use random number to decide which player marks first
-  //else if data-marked hex value
 }
