@@ -153,7 +153,8 @@ const gameBoardFactory = () => {
     modalBack.append(modalContent);
     modalContent.append(modalButton);
     modalContent.style.background = winner;
-    modalContent.textContent = 'Winner!';
+    const findWinner = player.playerList.find(item => item.playerColor === winner)
+    modalContent.textContent = `${findWinner.firstName} wins!`;
     modalButton.onclick = () => {
       clearTimeout(time);
       const modalBack = document.querySelector('.modal-back');
